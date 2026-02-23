@@ -1,1 +1,10 @@
 project_id = "xmcjbrvnmbviucysmosi"
+
+[functions.parse-resume]
+verify_jwt = false
+
+[functions.compatibility-score]
+verify_jwt = false
+
+[functions.candidate-summary]
+verify_jwt = false
