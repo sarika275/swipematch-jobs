@@ -1,14 +1,48 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Briefcase, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<"candidate" | "recruiter">("candidate");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signUp, signIn } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (isLogin) {
+        await signIn(email, password);
+        navigate("/swipe");
+      } else {
+        await signUp(email, password, role, name);
+        toast({
+          title: "Check your email",
+          description: "We sent you a confirmation link to verify your account.",
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -72,13 +106,13 @@ const Auth = () => {
             </div>
           )}
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="name" placeholder="John Doe" className="pl-10 h-12 rounded-xl" />
+                  <Input id="name" placeholder="John Doe" className="pl-10 h-12 rounded-xl" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
               </div>
             )}
@@ -87,7 +121,7 @@ const Auth = () => {
               <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="you@example.com" className="pl-10 h-12 rounded-xl" />
+                <Input id="email" type="email" placeholder="you@example.com" className="pl-10 h-12 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
             </div>
 
@@ -95,15 +129,13 @@ const Auth = () => {
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input id="password" type="password" placeholder="••••••••" className="pl-10 h-12 rounded-xl" />
+                <Input id="password" type="password" placeholder="••••••••" className="pl-10 h-12 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
             </div>
 
-            <Link to="/swipe">
-              <Button className="w-full h-12 rounded-xl gradient-primary text-primary-foreground border-0 text-base font-semibold mt-2">
-                {isLogin ? "Sign In" : "Create Account"}
-              </Button>
-            </Link>
+            <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground border-0 text-base font-semibold mt-2">
+              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+            </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">

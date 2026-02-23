@@ -1,10 +1,13 @@
-import { Link, useLocation } from "react-router-dom";
-import { Briefcase, MessageCircle, User, Flame } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Briefcase, MessageCircle, User, Flame, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
-  const isLanding = location.pathname === "/";
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const isLanding = location.pathname === "/" || location.pathname === "/auth";
 
   if (isLanding) return null;
 
@@ -13,6 +16,11 @@ const Navbar = () => {
     { to: "/matches", icon: MessageCircle, label: "Matches" },
     { to: "/profile", icon: User, label: "Profile" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <>
@@ -25,9 +33,15 @@ const Navbar = () => {
             </div>
             <span className="font-bold text-lg text-foreground">SwipeHire</span>
           </Link>
-          <Link to="/auth">
-            <Button size="sm" variant="outline">Sign In</Button>
-          </Link>
+          {user ? (
+            <Button size="sm" variant="ghost" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-1" /> Sign Out
+            </Button>
+          ) : (
+            <Link to="/auth">
+              <Button size="sm" variant="outline">Sign In</Button>
+            </Link>
+          )}
         </div>
       </header>
 
