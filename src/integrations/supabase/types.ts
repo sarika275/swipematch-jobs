@@ -186,6 +186,7 @@ export type Database = {
           id: string
           match_id: string
           message: string
+          read_at: string | null
           sender_id: string
         }
         Insert: {
@@ -193,6 +194,7 @@ export type Database = {
           id?: string
           match_id: string
           message: string
+          read_at?: string | null
           sender_id: string
         }
         Update: {
@@ -200,6 +202,7 @@ export type Database = {
           id?: string
           match_id?: string
           message?: string
+          read_at?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -213,6 +216,47 @@ export type Database = {
           {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json | null
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
